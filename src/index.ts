@@ -4,7 +4,6 @@ import createServer from "./utils/server";
 
 dotenv.config();
 
-
 const port = process.env.PORT || 3000;
 const app = createServer();
 
