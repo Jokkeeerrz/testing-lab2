@@ -23,6 +23,7 @@ function routes(app: Express) {
       res.status(422).json({ error: 'Failed to create Pog' });
     }
   });
+
   //READ
   app.get('/pogs', async (req: Request, res: Response) => {
     try {
