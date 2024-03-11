@@ -6,10 +6,9 @@ export const prisma = new PrismaClient();
 function routes(app: Express) {
 
   //CREATE
-  app.post('/pogs', async (req: Request, res: Response) => {
-    const { name, ticker_symbol, price, color } = req.body;
-
+  app.post('/create-pogs', async (req: Request, res: Response) => {
     try {
+      const { name, ticker_symbol, price, color } = req.body || {};
       const pogCreated = await prisma.pogs.create({
         data: {
           name,
@@ -18,7 +17,12 @@ function routes(app: Express) {
           color,
         },
       });
-      res.status(201).json(({ data: pogCreated }));
+
+      if (!pogCreated) {
+        res.status(404).json({ error: "Pog not found" })
+      }
+
+      res.status(200).json(pogCreated);
     } catch (error) {
       res.status(422).json({ error: 'Failed to create Pog' });
     }
@@ -57,11 +61,10 @@ function routes(app: Express) {
 
   //UPDATE
   app.put('/pogs/:id', async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
-    const { name, ticker_symbol, price, color } = req.body;
-
     try {
-      const updatedPog = await prisma.pogs.update({
+      const id: number = parseInt(req.params.id);
+      const { name, ticker_symbol, price, color } = req.body || {};
+      const updatePog = await prisma.pogs.update({
         where: {
           id,
         },
@@ -72,7 +75,7 @@ function routes(app: Express) {
           color,
         },
       });
-      res.json(updatedPog).status(200);
+      res.json(updatePog).status(200);
     } catch (error) {
       res.status(422).json({ error: "Update failed" });
     }
@@ -83,11 +86,16 @@ function routes(app: Express) {
     const id: number = parseInt(req.params.id);
 
     try {
-      await prisma.pogs.delete({
+      const deletePog = await prisma.pogs.delete({
         where: {
           id,
         },
       });
+
+      if (!deletePog) {
+        res.status(404).json({ error: "Pog does not exist" });
+        return;
+      }
       res.status(204).end();
     } catch (error) {
       res.status(404).json({ error: "Failed to delete pog"})

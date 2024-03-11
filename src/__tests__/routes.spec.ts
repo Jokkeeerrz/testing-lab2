@@ -14,20 +14,26 @@ describe('Pog API', () => {
     await prisma.$disconnect();
   });
 
-  test('POST /pogs should create a new Pog', async () => {
-    const postData = { name: "Test Pog", ticker_symbol: "test", price: 100, color: "red" };
-
+  it('POST /create-pogs should create a new Pog', async () => {
+    const createdPog = { 
+      name: "Test Pog", 
+      ticker_symbol: "test", 
+      price: 100, 
+      color: "red" 
+    };
+  
     const response = await request(app)
-      .post('/pogs')
-      .send(postData)
-      .expect(201);
-
+      .post('/create-pogs') 
+      .send(createdPog)
+      .expect(200);
+  
     expect(response.body).toHaveProperty('id');
-    expect(response.body.name).toBe(postData.name);
-    expect(response.body.ticker_symbol).toBe(postData.ticker_symbol);
-    expect(response.body.price).toBe(postData.price);
-    expect(response.body.color).toBe(postData.color);
-  }, 10000);
+    expect(response.body.name).toBe(createdPog.name);
+    expect(response.body.ticker_symbol).toBe(createdPog.ticker_symbol);
+    expect(response.body.price).toBe(createdPog.price);
+    expect(response.body.color).toBe(createdPog.color);
+  });
+  
 
   test('GET /pogs should return all Pogs', async () => {
     await prisma.pogs.createMany({
@@ -48,8 +54,9 @@ describe('Pog API', () => {
       ],
     });
 
-    const response = await request(app).get('/pogs').expect(200);
+    const response = await request(app).get('/pogs');
 
+    expect(response.statusCode).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(2);
   });
